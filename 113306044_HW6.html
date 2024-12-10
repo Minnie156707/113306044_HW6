@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學號_HW6_1A2B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .guess-list {
+            margin-top: 20px;
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>113306044_HW6_1A2B</h1>
+    
+    <p>請輸入四個不重複的數字 (範圍 0-9)：</p>
+    <input type="text" id="userInput" maxlength="4" placeholder="請輸入四個不重複的數字">
+    <button onclick="checkAnswer()">猜!</button>
+
+    <div class="result" id="result"></div>
+    <div id="attempts"></div>
+
+    <div class="guess-list">
+        <h3>遊戲紀錄：</h3>
+        <ul id="guessHistory"></ul>
+    </div>
+
+    <script>
+        let secretNumber = generateSecretNumber();  // 生成隨機數字
+        let attemptCount = 0;  // 記錄作答次數
+
+        // 生成隨機的四位數字，並且不重複
+        function generateSecretNumber() {
+            let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let secret = [];
+            for (let i = 0; i < 4; i++) {
+                let randomIndex = Math.floor(Math.random() * numbers.length);
+                secret.push(numbers[randomIndex]);
+                numbers.splice(randomIndex, 1);  // 移除已經選過的數字
+            }
+            return secret;
+        }
+
+        // 檢查用戶的輸入
+        function checkAnswer() {
+            let userInput = document.getElementById("userInput").value;
+            if (userInput.length !== 4) {
+                alert("請輸入四個數字！");
+                return;
+            }
+
+            // 確認是否有重複數字
+            let uniqueDigits = new Set(userInput);
+            if (uniqueDigits.size !== 4) {
+                alert("數字不能重複！");
+                return;
+            }
+
+            // 轉換輸入為陣列
+            let userGuess = userInput.split('').map(Number);
+            attemptCount++;
+
+            let result = getResult(userGuess);
+            document.getElementById("result").innerHTML = `您的回答: ${userInput} → 結果: ${result}`;
+            document.getElementById("attempts").innerHTML = `已嘗試次數: ${attemptCount}`;
+
+            // 將猜測結果加入到猜測歷史列表
+            addGuessHistory(userInput, result);
+
+            if (result === "4A0B") {
+                alert(`恭喜你猜對了！你用了 ${attemptCount} 次猜中答案！`);
+                resetGame();
+            }
+        }
+
+        // 比對用戶的猜測與正確答案
+        function getResult(userGuess) {
+            let A = 0;
+            let B = 0;
+
+            for (let i = 0; i < 4; i++) {
+                if (userGuess[i] === secretNumber[i]) {
+                    A++;  // 數字與位置正確
+                } else if (secretNumber.includes(userGuess[i])) {
+                    B++;  // 數字正確但位置錯誤
+                }
+            }
+
+            return `${A}A${B}B`;
+        }
+
+        // 將猜測結果顯示在頁面上
+        function addGuessHistory(userInput, result) {
+            let historyList = document.getElementById("guessHistory");
+            let listItem = document.createElement("li");
+            listItem.textContent = `第${attemptCount}次: ${userInput} → ${result}`;
+            historyList.appendChild(listItem);
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            secretNumber = generateSecretNumber();
+            attemptCount = 0;
+            document.getElementById("userInput").value = '';
+            document.getElementById("result").innerHTML = '';
+            document.getElementById("attempts").innerHTML = '';
+            document.getElementById("guessHistory").innerHTML = '';  // 清空猜測歷史
+        }
+    </script>
+</body>
+</html>
+
